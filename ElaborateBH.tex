@@ -156,7 +156,7 @@ any $m$ pebbles on a standard sandwich graph is an $(n_0, m, 2/2^\omega)$ avoidi
 \begin{lemma}[Everywhere Avoiding]\label{lemma::everyavoid}
   Let $G = (U \bigcup V, E)$, be a $\delta$-random sandwich graph on 2n vertices. Then for all positive integer $m$ that satisfy the assumption
   of lemma~\ref{lemma::bigspreadvar}, and $n_0$ such that $n_0$ is no bigger than the upper bound of $m$, we have that given $n_0$ pebbles at most,
-  every subset $V^\prime \subseteq V$ of size $m$, is a $(n_0, n/2^\omega)$ avoiding set with probability at least 
+  every subset $V^\prime \subseteq V$ of size $m$, is a $(n_0, n/2^\omega)$ avoiding set with probability at least
   $1 - (\frac{n}{m})^m \cdot 2^{(1-\omega)\frac{\delta m}{2}} \cdot (2^{\omega m} + 2^{1 + (n_0 + 1) \omega})$
 \end{lemma}
 
@@ -165,11 +165,11 @@ any $m$ pebbles on a standard sandwich graph is an $(n_0, m, 2/2^\omega)$ avoidi
   Apply this inequality to simply the bound:
   \begin{equation}
     \binom{n}{m} = \frac{n \times (n-1) \times \dots \times (n-m+1)}{m \times (m-1) \times \dots 1} \leq
-    \frac{n^m}{m^m} = frac{n}{m}^m
+    \frac{n^m}{m^m} = (\frac{n}{m})^m
   \end{equation}
-  And thus by lemma~\ref{lemma::bigspreadvar}, we have the probability that a single bad event occurs is at most 
+  And thus by lemma~\ref{lemma::bigspreadvar}, we have the probability that a single bad event occurs is at most
   $2^{(1-\omega)\frac{\delta}{2}m} \cdot (2^{\omega m}+2^{\omega+1}2^{\omega n_0})$, and thus the probability that
-  for all choice of $V^\prime$, the bad event occurs is at most 
+  for all choice of $V^\prime$, the bad event occurs is at most
   $(\frac{n}{m})^m \cdot 2^{(1-\omega)\frac{\delta m}{2}} \cdot (2^{\omega m} + 2^{1 + (n_0 + 1) \omega})$.
   And thus the lemma is proved.
 \end{proof}
@@ -257,7 +257,7 @@ the time needed to output a block from Random Oracle, $c = 1000$.
 \end{table}
 
 As shown in table~\ref{table::recomp-dram-ratio}, given our parameter setting, the ratio of re-computation becomes bigger than 1 when the graph get deeper than 4 layers.
-However, this is a loose bound. Firstly, the DRAM latency is computed as $\delta mc$, where $c = 1000$, this does not take into account the case when the $\delta m$ 
+However, this is a loose bound. Firstly, the DRAM latency is computed as $\delta mc$, where $c = 1000$, this does not take into account the case when the $\delta m$
 predecessors `collide' with each other, that is, when one fetch benefit another pebbling process. Secondly, the re-computation was take the upper bound. Thirdly, an
 optimal strategy may combine these two means, using fetching for some vertices, and re-computation for others. Nevertheless, this rather loose bound shows that if
 the layer of the graph gets deeper, pure re-computation will never be a useful solution, no matter what.
