@@ -156,7 +156,7 @@ any $m$ pebbles on a standard sandwich graph is an $(n_0, m, 2/2^\omega)$ avoidi
 \begin{lemma}[Everywhere Avoiding]\label{lemma::everyavoid}
   Let $G = (U \bigcup V, E)$, be a $\delta$-random sandwich graph on 2n vertices. Then for all positive integer $m$ that satisfy the assumption
   of lemma~\ref{lemma::bigspreadvar}, and $n_0$ such that $n_0$ is no bigger than the upper bound of $m$, we have that given $n_0$ pebbles at most,
-  every subset $V^\prime \subseteq V$ of size $m$, is a $(n_0, n/2^\omega)$ avoiding set with probability at least 
+  every subset $V^\prime \subseteq V$ of size $m$, is a $(n_0, n/2^\omega)$ avoiding set with probability at least
   $1 - (\frac{n}{m})^m \cdot 2^{(1-\omega)\frac{\delta m}{2}} \cdot (2^{\omega m} + 2^{1 + (n_0 + 1) \omega})$
 \end{lemma}
 
@@ -167,9 +167,9 @@ any $m$ pebbles on a standard sandwich graph is an $(n_0, m, 2/2^\omega)$ avoidi
     \binom{n}{m} = \frac{n \times (n-1) \times \dots \times (n-m+1)}{m \times (m-1) \times \dots 1} \leq
     \frac{n^m}{m^m} = frac{n}{m}^m
   \end{equation}
-  And thus by lemma~\ref{lemma::bigspreadvar}, we have the probability that a single bad event occurs is at most 
+  And thus by lemma~\ref{lemma::bigspreadvar}, we have the probability that a single bad event occurs is at most
   $2^{(1-\omega)\frac{\delta}{2}m} \cdot (2^{\omega m}+2^{\omega+1}2^{\omega n_0})$, and thus the probability that
-  for all choice of $V^\prime$, the bad event occurs is at most 
+  for all choice of $V^\prime$, the bad event occurs is at most
   $(\frac{n}{m})^m \cdot 2^{(1-\omega)\frac{\delta m}{2}} \cdot (2^{\omega m} + 2^{1 + (n_0 + 1) \omega})$.
   And thus the lemma is proved.
 \end{proof}
@@ -257,10 +257,93 @@ the time needed to output a block from Random Oracle, $c = 1000$.
 \end{table}
 
 As shown in table~\ref{table::recomp-dram-ratio}, given our parameter setting, the ratio of re-computation becomes bigger than 1 when the graph get deeper than 4 layers.
-However, this is a loose bound. Firstly, the DRAM latency is computed as $\delta mc$, where $c = 1000$, this does not take into account the case when the $\delta m$ 
+However, this is a loose bound. Firstly, the DRAM latency is computed as $\delta mc$, where $c = 1000$, this does not take into account the case when the $\delta m$
 predecessors `collide' with each other, that is, when one fetch benefit another pebbling process. Secondly, the re-computation was take the upper bound. Thirdly, an
 optimal strategy may combine these two means, using fetching for some vertices, and re-computation for others. Nevertheless, this rather loose bound shows that if
 the layer of the graph gets deeper, pure re-computation will never be a useful solution, no matter what.
+
+\paragraph{Definition 2(Cumulative Pebbling Complexity).}
+Let $G$ be a $DAG$, P = ($P_0$,...,$P_t$) be an arbitrary pebbling of $G$ and $¦°$ be the set of all complete pebblings of $G$. Then the (cumulative) cost of $P$ and then cumulative complexity ($CC$) of $G$ are defined respectively to be:\\
+  \begin{equation}
+    p-cost(P):= \sum\limits_{i=0}^t|P_i|
+  \end{equation}
+
+  \begin{equation}
+    cc(G):= min\{p-cost(P):P \in \pi \}
+  \end{equation}
+Moreover the space complexity ($SC$) and space/time complexity ($STC$) are defined as follows:
+  \begin{equation}
+    s-cost(P):= max\{ P_i:i\in \{ 0,\dots,t \} \}
+  \end{equation}
+
+  \begin{equation}
+    sc(G):= min\{s-cost(P):P \in \pi \}
+  \end{equation}
+
+  \begin{equation}
+    st-cost(P):=k*max\{ P_i:i\in \{ 0,\dots,t \} \}
+  \end{equation}
+
+  \begin{equation}
+    sc(G):= min\{st-cost(P):P \in \pi \}
+  \end{equation}
+
+\paragraph{Amortized Graph Complexity.}
+Unlike the standard pebbling complexity notions of $SC$ and $STC$, for the parallel pebbling game, $CC$ is also an amortized complexity notion. In fact it scales additively in the $CC$ of the individual disconnected components of the graph.We prove this property of $CC$ formally in the following lemma.In our model,we need make some changes in the definition $CC$.
+\paragraph{Definition 3(New Cumulative Pebbling Complexity).}
+we suppose that the time which we fetch the block is $c$ times higher than do once hash.At the same time, to make our next analysis become easier we also suppose that we don't make other work when we fetch the block in the DRAM ,so based on our this suppose ,we define the status when we fetch the block are $Q_i(i=1,\dots,s)$.So in our model,we have :
+  \begin{equation}
+    p'-cost(P):= \sum\limits_{i=0}^t|P_i|+(c-1)\sum\limits_{i=0}^s|Q_i|
+  \end{equation}
+
+  \begin{equation}
+    cc(G):= min\{p'-cost(P):P \in \pi \}
+  \end{equation}
+
+
+\paragraph{Definition 4(Heavy Group).}
+For $a\in \mathbb N_{<i-\alpha}$,we call $\Gamma_a :=\{(\phi,v)\in p:\lfloor \frac{v}{2^{\alpha}} \rfloor = a \}$ is a group,and a heavy group is one which has $|\Gamma_a|\ge(1-3\omega)2^{\alpha}$
+
+According the article\cite{corrigan2015balloon2},we can get the lemma of the number of the heavy groups:
+
+\paragraph{Lemma 5.}There are at least $2^{i-\alpha}/3$ heavy groups\\
+\\ \\
+The proof of this lemma is in the article.\cite{corrigan2015balloon2}After give the definition of heavy group ,we need to express the complexity of $cc(G_{\omega,\phi,i})$,so we give the Lemma 6:
+
+\paragraph{Lemma 6.}Fix any $\phi\in \mathbb N$,$0<\omega\le \frac{4^{-\phi}}{6}$\\
+-Let $C_{\omega,\phi}$ be a constant be a constant such that some set $\{D_{4^{\phi-j} \omega,2^{i}}:j\in \mathbb N_{\phi}\}$of depth-robust graphs exists $\forall i \ge C_{\omega,\phi}$.\\
+-Let $C_{\phi}$be a constant such that $\forall i \ge C_{\phi}$we have $\frac{log(i)}{i} \ge \frac{2^{-\phi}}{3}$.\\
+If both constants exist then $\forall i \ge max\{C_{\omega,\phi},C_{\phi},11\}$ the DAG $G_{\omega,\phi,i}$ has a single source and sink, size $n_i$ and:\\
+$1.n_i=(\phi+1)(2^i).$\\
+$2.indeg(G_{\omega,\phi,i})\le3i^3+1.$\\
+$3.cc(G_{\omega,\phi,i})\ge \frac{{\omega}^2}{144}i^3{(2^i)}^{2-2^{-\phi}}.$
+
+The proof of Lemma 6is to use index-heavy group to solve. So based on the Lemma 6,we can know that the model's complexity in the article\cite{corrigan2015balloon2}.According to conclusion 1,we can get
+\begin{equation}
+  O(i)=O(logn)-O(log(\phi+1))
+\end{equation}
+We put it in the conclusion 3,we can get
+\begin{equation}
+  cc(G_{\omega,\phi,i})=\frac{{\omega}^2}{144}O((logn-log(\phi+1))^3{(\frac{n}{\phi+1})^{2-2^{-\phi}}})\approx n^2(logn)^3
+\end{equation}
+It is because that fix any $\phi\in \mathbb N$,so we can choose $\phi$ is too large to make $2-2^{-\phi}\to 2$,so we can get the max lower boundary is $O(n^2(logn)^3)$.Next ,we will give our analysis about the index:cc,and we will proof cc's complexity in our model is better than its,so it can illustrate our plan is better.And here,we fixed i and $\phi$ to define the following three constants:\\
+$\alpha :=\left\lfloor (1-2^{-\phi})i\right\rfloor$
+$\beta :=\left\lfloor (1-2^{-\phi})i+3logi\right\rfloor$
+$R:=2^{\beta-\alpha}$//
+Based on these index ,we can get:
+\begin{equation}
+\begin{aligned}
+  cc(G_{\omega,\phi,i})&=min\{p'-cost(P):P \in \pi \}\\
+  &=min\{\sum\limits_{i=0}^t|P_i|+(c-1)\sum\limits_{i=0}^s|Q_i|:P \in \pi \}\\
+  &\ge\frac{2^{i-\alpha}}{3} (1-3\omega)2^{\alpha} cR \\
+  &\approx \frac{1-3\omega}{3} cR2^i\\
+  &\approx \frac{1-3\omega}{3} c 2^{\beta-\alpha} n \\
+  &\approx \frac{1-3\omega}{3} c 2^{3logi} n \\
+  &\approx \frac{1-3\omega}{3} c i^3 n \\
+  &\approx O(n(logn)^3)
+\end{aligned}
+\end{equation}
+We can get the better complexity than original paper's model,our better complexity is $O(n(logn)^3)$
 
 \bibliography{refEBH}
 \bibliographystyle{plain}
