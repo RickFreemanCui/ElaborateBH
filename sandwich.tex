@@ -1,0 +1,198 @@
+In this section we prove that given our realistic parameter settings, fetching from memory will definitely become
+an advantageous strategy compared to re-computation. We use sandwich graph from~\cite{corrigan2016balloon} as an
+example. We take our ideas from the proof in~\cite{corrigan2016balloon}, especially, we are interested in the
+\textit{big-spread} property and the \textit{everywhere-avoiding} property.
+
+\subsection{Big spread lemma variant}
+\input{bigSpread.tex}
+
+After proving the big spread lemma variant, we are interested in using it to deduce everywhere avoiding property of the
+sandwich graph, with the size of the subset $V^\prime \subset V$ and the pebble constraint independent.
+
+\subsection{Everywhere avoiding property}
+\paragraph{An analysis of original strategy}
+In the original work \cite{corrigan2016balloon}, the author proves a \textit{consecutive avoiding property} over all possible size of $m$, and
+then for m of fixed size ($n/64$), proves a tighter \textit{everywhere avoiding property}. The reason of combining these two property is that
+the first one allows the number pebbles to be arbitrary within a given range. In particular, one can consider $m$ to have the same number of the
+pebbles the adversary owns. In order to prove a tighter bound on $S \cdot T$ (like in part~b of Lemma~31), one needs to first apply consecutive
+avoiding property and then use the everywhere avoiding property. What we want to do is to acquire the probability that given at most $n_0$ pebbles,
+any $m$ pebbles on a standard sandwich graph is an $(n_0, m, 2/2^\omega)$ avoiding set.
+
+\begin{lemma}[Everywhere Avoiding]\label{lemma::everyAvoid}
+  Let $G = (U \bigcup V, E)$, be a $\delta$-random sandwich graph on 2n vertices. Then for all positive integer $m$ that satisfy the assumption
+  of lemma~\ref{lemma::bigspreadvar}, and $n_0$ such that $n_0$ is no bigger than the upper bound of $m$, we have that given $n_0$ pebbles at most,
+  every subset $V^\prime \subseteq V$ of size $m$, is a $(n_0, n/2^\omega)$ avoiding set with probability at least
+  $1 - (\frac{n}{m})^m \cdot 2^{(1-\omega)\frac{\delta m}{2}} \cdot (2^{\omega m} + 2^{1 + (n_0 + 1) \omega})$
+\end{lemma}
+
+\begin{proof}
+  Fix the size of $n_0$ and $m$, all we need to do is to apply union bound to all possible choice of $V^\prime$, which has $\binom{n}{m}$ in total.
+  Apply this inequality to simply the bound:
+  \begin{equation}
+    \binom{n}{m} = \frac{n \times (n-1) \times \dots \times (n-m+1)}{m \times (m-1) \times \dots 1} \leq
+    \frac{n^m}{m^m} = (\frac{n}{m})^m
+  \end{equation}
+  And thus by lemma~\ref{lemma::bigspreadvar}, we have the probability that a single bad event occurs is at most
+  $2^{(1-\omega)\frac{\delta}{2}m} \cdot (2^{\omega m}+2^{\omega+1}2^{\omega n_0})$, and thus the probability that
+  for all choice of $V^\prime$, the bad event occurs is at most
+  $(\frac{n}{m})^m \cdot 2^{(1-\omega)\frac{\delta m}{2}} \cdot (2^{\omega m} + 2^{1 + (n_0 + 1) \omega})$.
+  And thus the lemma is proved.
+\end{proof}
+
+\subsection{A bound on the pebbling moves of random sandwich graph}
+\paragraph{Bounding pebbling moves}
+And now for the sake of our own objective, we would like to calculate the bound of re-computation of a subset of vertices on any layer. To do this, we
+need to first compute the moves needed to pebble a subset of vertices. First define a variable to denote the pebbling moves needed to pebble a subset of
+$m$ vertices on the condition that except on those $m$ vertices, there can be at most $n_0$ pebbles on any vertices of the graph.
+
+\begin{definition}\label{def::Tr}
+  Let $G$ be a stack of random sandwich graphs. Then define $T_r$ be the pebbling moves needed to pebble a subset $V^\prime$ of vertices on layer $r$, which has
+  not received any pebble on the beginning of the moves, and at the end of the moves, the topologically last one receives a pebble. The condition is that there
+  can only be at most $n_0$ pebbles on the graph.
+\end{definition}
+
+Now that we have defined the amount to calculate, we can use induction reasoning to calculate $T_r$.
+
+\begin{lemma}\label{lemma::rbound}
+  Given the average case that $T_0 = \frac{m+n}{2}$, we have:
+  \begin{equation}
+    T_r \geq -\frac{m}{\frac{n}{m2^\omega} - 1} + (\frac{n}{m2^\omega})^r(\frac{m+n}{2}+\frac{m}{\frac{n}{m2^\omega} - 1})
+  \end{equation}
+  where $0 \leq r \leq d$, $d$ is the layer of the stack of random sandwich graph.
+\end{lemma}
+\begin{proof}
+  By the definition of $T_r$, we have that $T_r \geq m + \frac{n}{m2^\omega}T_{r-1}$. And thus we have:
+  \begin{align}
+    T_r &\geq m + \frac{n}{m2^\omega}T_{r-1}\\
+    T_r + \frac{m}{\frac{n}{m2^\omega} - 1} &\geq \frac{n}{m2^\omega}(T_{r-1} + \frac{m}{\frac{n}{m2^\omega} - 1})\\
+  \end{align}
+  If we define $Y_r = T_r + \frac{m}{\frac{n}{m2^\omega} - 1}$, and change the inequality into equality, we can have
+  \begin{equation}
+    Y_r = (\frac{n}{m2^\omega})^r \cdot Y_0
+  \end{equation}
+  And thus $T_r \leq -\frac{m}{\frac{n}{m2^\omega} - 1} + (\frac{n}{m2^\omega})^r(\frac{m+n}{2}+\frac{m}{\frac{n}{m2^\omega} - 1})$.
+\end{proof}
+
+Then we define the lower bound of re-computation needed in the process discussed above.
+\begin{definition}
+  Let Recompute(r) be the pebbling moves needed in the process to pebble m vertices on layer r. More specifically, the pebbling moves needed to
+  pebble the direct predecessors of those m vertices.
+\end{definition}
+
+By the definition of $Recompute(r)$ and lemma~\ref{lemma::rbound}, one can see that $Recompute(r) \geq -m + T_r$, and it grows exponentially with r.
+
+\subsection{A comparison on re-computation and DRAM fetching}
+\paragraph{Parameter setting and result}
+In the following comparison section, we take the block size, which the output length of the underlying cryptographic hashing function to be 256~bit,
+and the block in one layer of the graph to be $2^22$\footnote{The authors of Balloon Hashing recommended the space parameter to be 256MB for authentication servers.}
+. We take $\omega = 3$, and the ratio of the latency of fetching a DRAM block over the ratio of
+the time needed to output a block from Random Oracle, $c = 1000$.
+
+The result of the ratio of naive DRAM algorithm (only fetch from memory, never re-compute), and
+the lower bound proved in lemma~\ref{lemma::rbound} are given together with the depth of layer in
+figure~\ref{table::recompDramRatio}. We can see from the ratio that DRAM fetching becomes advantageous once the
+graph gets deeper than 5 layers. However, this is a loose bound, as optimal strategy might combine these two strategies,
+using only the optimal moves. An intuitive idea is that when other parameters other than the depth of the graph are fixed,
+those re-computation optimal moves can only occur at the first few layers, and thus given the fact that $r$ is growing,
+the combination boost is bounded by a constant.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|c|c|}
+     \hline
+     % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+     Layer & Ratio \\ \hline
+     1 & 0.01 \\
+     2 & 0.04 \\
+     3 & 0.15 \\
+     4 & 0.62 \\
+     5 & 2.46 \\
+     \hline
+  \end{tabular}
+  \caption{The ratio of re-computation over DRAM fetching}\label{table::recompDramRatio}
+\end{table}
+
+\paragraph{A bound on the memory hardness of balloon hashing}
+After the intuition that as the depth goes deeper, algorithm using DRAM fetching will certainly be advantageous, we are interested in
+finding a lower bound on the $c_0$ defined in definition~\ref{def::memoryHard}. If we constrain the computational entity to only computing
+$m$ adjacent blocks once at a time, then the problem would be trivial, as lemma~\ref{lemma::rbound} and simulation result in table~\ref{table::recompDramRatio}
+shows that as $r$ gets greater, DRAM fetching will certainly be the optimal choice. Also, in shallower layers re-computation only takes up a
+small portion of total time (they cannot exceed $c \cdot \delta \cdot m$), then we have $c_0 > 1 - r_0/r$, where $r_0$ is the number of deepest layer in
+the group of shallow layers. Now the tricky part is that how to remove the constraint, so that forcing the algorithm to choose between these
+two strategies would be logical.
+
+Consider an algorithm not using DRAM computing on a random sandwich graph, then there always exists a window of size $m$ not computed ahead of
+the latest computed node (but for the last $m$ nodes). And the computation can be considered to be computing the first node in the window.
+As when doing this, no nodes exist in the window, and the condition of such actions are somewhat identical. 
+% I feel very uncertain about this reasoning
+%
+This give rise to the idea that we can consider the time required to compute each blocks in the subset $V^\prime$ of size $m$ defined in 
+lemma~\ref{lemma::everyAvoid} to be identical. As the fetching strategy is scalable in nature, we can shrink $m$ into 1 in this way.
+And thus any entity computing on this graph must choose between two strategies. And our conclusion that $c_0 > 1 - r_0/r$ suffices.
+
+Conversely, if we can bound that for any optimal strategy computing the $V^\prime$ group of size $m$, there must exist a constant portion of blocks that
+are fetched from DRAM, then the memory hard property from definition~\ref{def::memoryHard} is satisfied.
+
+\begin{theorem}\label{theorem::memoryHardLowerBound}
+  Fix a random sandwich graph $G$ with $r$ layers and $n$ nodes per layer, and given $m$ and $n_0$ as defined in~\ref{lemma::everyAvoid}, the
+  memory hardness parameter defined in definition~\ref{def::memoryHard} satisfies that
+  % the greater sign here is not accurate, need to be improved
+  % this should be approximation
+  %
+  \begin{equation}
+    c_0 > \frac{(m - \frac{n_0}{\delta}) \cdot \delta c}{\frac{n_0}{\delta} + (m - \frac{n_0}{\delta}) \cdot (\delta + 1)c}
+  \end{equation}
+\end{theorem}
+
+Before we prove theorem~\ref{theorem::memoryHardLowerBound}, a little explanation here is necessary. The idea behind this is that
+when considering pebbling a group of size $m$ haven't been pebbled, with large probability, only those nodes with parents fully
+pebbled can be advantageous in the case of ``red pebble'' solution. And indeed, if this is the case ``red solution'' would
+certainly be better than ``blue solution''. But due to the limitation on the total pebbles $n_0$, there can only exist a constant
+portion of such ``red solutions'', leaving the predecessor of the rest to be fetched from memory. And thus the memory hard property
+from definition~\ref{def::memoryHard} is satisfied.
+
+The following lemma proves that if the predecessor of a node is partially pebbled, then using ``red solution'' is takes exponential
+time as the depth $r$ goes further.
+
+\begin{lemma}\label{lemma::quality}
+  Let $G$ be the random sandwich graph defined in theorem~\ref{theorem::memoryHardLowerBound}, if a node in layer $r$
+  is not pebbled, and there exists at least one unpebbled parent of this node, then with probability at least:
+  \begin{equation}
+    Pr = \frac{\binom{n_0 - 1}{n - m}}{\binom{n_0 - 1}{n - 1}} \cdot \frac{n - m + 1}{n}
+  \end{equation}
+  the moves needed to pebble this node is at least $T_{r - 1}$ as defined in definition~\ref{def::Tr}.
+\end{lemma}
+
+\begin{proof}
+  Let $x$ denote the unpebbled parent, and if at least $m$ consecutively previous nodes are unpebbled, then to pebble $x$
+  has the same effect as pebbling all those $m$ nodes. Note that in this case we can choose arbitrary $m$, so long as the
+  requirement from lemma~\ref{lemma::bigspreadvar} is satisfied. (if $m$ is too big, the event would be unlikely) The rest
+  could be considered as fix one bin, and drop $n_0$ balls into the rest $n - 1$ bins. Note that we ignored the corner
+  case where $x$ resides in the first $m - 1$ nodes of layer $r - 1$. Other than the corner case, fix the position of $x$,
+  and the probability is $\binom{n_0 - 1}{n - m}/\binom{n_0 - 1}{n - 1}$. Taking all the probability in the corner
+  case as zero would get the final result.
+  
+  As shown, with high probability the previous $m$ nodes of $x$ is unpebbled. And thus we can use lemma~\ref{lemma::rbound}
+  to deduce that to pebble $x$, at least $T_{r - 1}$ moves are required, which proves the lemma.
+\end{proof}
+
+Now that we see an optimal pebbling strategy would not waste pebbles on nodes with partially pebbled parents. And
+therefore the optimal strategy we are talking are left with two cases:
+
+\begin{itemize}
+  \item[Red] all parents of this node is fully pebbled, and it takes one round to pebble this node
+  \item[Blue] any parent of this node is not pebbled, and it takes $\delta c + 1$ rounds to pebble this node
+\end{itemize}
+
+Given there are only $n_0$ red pebbles, one can easily calculate the portion of DRAM fetching moves used in pebbling
+these $m$ nodes, and thus the memory hardness of the function.
+
+\begin{proof}[Proof of theorem~\ref{theorem::memoryHardLowerBound}]
+  From lemma~\ref{lemma::quality} we can deduce that in a group of $m$ adjacent nodes, $n_0 / \delta$ of them are pebbled
+  directly, and the rest is pebbled using the blue pebble moves. And thus the total rounds is
+  \begin{equation}
+    T = \frac{n_0}{\delta} + (m - \frac{n_0}{\delta}) \cdot (\delta + 1) c
+  \end{equation}
+  where $(m - \frac{n_0}{\delta}) \cdot \delta c$ rounds are used to fetch blocks from DRAM. After $r$ gets enough deep,
+  the majority of the $m$ adjacent nodes will satisfy the property. And this completes the proof.
+\end{proof}

@@ -1,0 +1,90 @@
+In this section we formally describe our model and prepare for the proof of our results in section~\ref{sec::sandwich}. The intuition behind
+our model is that the common means in constructing a memory-hard function is by carefully constructing the underlying data dependency graph,
+to make re-computation (which is unavoidable since by assumption custom circuit has only limited memory) takes very long time, as the function
+runs towards the end. But those values re-computed has already been computed, and fetching a block of memory with arbitrary address from DRAM
+takes constant time. This gives rise of the following intuition: If we can combine DRAM and custom circuit together, when such re-computation
+becomes not advantageous compared to memory fetching, then can we improve the performance of custom circuit? After survey of current VLSI and
+DRAM technology, we believe our model is useful given real parameter settings.
+
+\paragraph{Constant definition}
+We will use the following constant throughout the analysis. We use $T$ to denote the absolute time needed to for a computational entity to acquire
+the hash of a given input. In the Random Oracle setting, this is the time required to access a particular random oracle call. We use $c \cdot T$
+to denote the time required to fetch a block of memory (equals to the size of RO output), and thus $c$ is the ratio representing the fetch time over
+the hash time\footnote{$c$ is approximately 1000}.
+We will see later that this value correspond to the rounds that a legal pebbling must wait after making a pebble fetch move.
+
+\subsection{Pebbling in DRAM model}
+
+In this section we define rules of sequential pebbling game in our elaborated DRAM model.
+
+\begin{definition}\label{def::dramPebblingRules}
+  Let $G = (V, E)$ be a directed acyclic graph, a legal pebbling on $G$ given $S$ pebbles and target $T \subset V$
+  is a sequence of moves, measured in rounds.
+  Each move must be legal according to the following rules:
+
+  \begin{enumerate}
+    \item Put a red pebble on source node
+    \item Put a red pebble on a node only if all of its parents have red node or blue node in the previous round
+    \item Put a blue pebble on any nodes previously pebbled
+    \item Remove a pebble from any node
+  \end{enumerate}
+
+  Additional constraints are at any time, there can be only at most $S$ red pebbles, and blue pebbles are removed automatically one round
+  after placement. Move~1, 2, and 4 takes one round and move~3 takes $c$ rounds. A legal game is valid only if it begins with no node on the
+  graph and end with all nodes in $T$ has been pebbled at least once.
+\end{definition}
+
+Note that in our definition of pebbling games, only one rule is added compared to the pebbling rules in~\cite{alwen2015high,corrigan2016balloon},
+that is the blue pebble placement rule. This is an simplified abstraction of DRAM fetching in the real world. By our assumption, a block
+can only be used immediately after being fetched, then it is lost. Of course in the real world, certain cache method is most likely applied
+to save some time when, say, one block is repeatedly fetched. But as we will later show, this somewhat naive abstraction will save considerably
+amount of time given real parameter setting.
+
+\subsection{DRAM computational model}
+In this section we define the theoretical computational machine on which algorithm with DRAM fetching is executed.
+
+\begin{definition}\label{def::dramComputationalModel}
+  Let $\mathcal{M}$ be a computational machine with available memory blocks of number $\sigma$ and an instruction set as follows:
+
+  \begin{itemize}
+    \item \textbf{HASH}: compute the hash\footnote{standard cryptographic hash function like SHA-256 or blake2b} of a given set of inputs
+    \item \textbf{STORSRAM}: store a block into fast memory
+    \item \textbf{LOADSRAM}: load a block from fast memory
+    \item \textbf{STORDRAM}: store a block into slow memory
+    \item \textbf{LOADDRAM}: load a block from slow memory
+  \end{itemize}
+
+  Any algorithm under this model is a sequence of instructions mentioned above. The first instruction takes time~$T$, the second
+  and the third instructions takes negligible time. For the simplification of our analysis, we consider that the fourth instruction
+  is executed whenever a new block is computed. The fifth instruction takes time $c \cdot T$.
+\end{definition}
+
+Note that this model can be easily modified to model computation on circuits without slow memory (the model previous analysed),
+just disable the fourth and the fifth instruction and we are done.
+
+\subsection{Memory hardness in the sequential setting}
+In this section we define memory hardness in the sequential setting. The idea behind this definition is that such property of a function
+is desirable: the majority of the complexity of the optimal algorithm (in terms of time complexity) will be spent on memory fetching,
+which means that no mater how fast the computational module is, as long as the memory module is stable (not having rapid development),
+then the development in faster computational module will not result in considerable boost in execution time. If such property is real,
+then we can construct, say, a public block-chain using this function as its proof-of-work consensus method, without having to worry about
+custom circuit will make computational power overly centralized (a problem severely affecting bitcoin.)
+
+% This definition surly needs refurnishing, but I have no Idea how to use it without having to figure out the
+% optimal solution now. I want to first assert that the optimal solution will have T_fetch < c_0 * T, then use
+% that there exist a better solution, to prove that such solution is not optimal, and thus to prove the
+% best solution (or algorithm) is indeed fetch taking, and thus memory-hard.
+
+\begin{definition}\label{def::memoryHard}% after refinement, make a clearer definition
+  Fix a function $f$, then it is considered to be memory-hard in a computational machine $\mathbb{M}$ in definition~\ref{def::dramComputationalModel}
+  if given the optimal algorithm that can correctly output the result, the ratio of the time taken to fetch blocks from DRAM (denote as $T_f$) over
+  the time taken to compute underlying hash function (denote as $T_h$) is greater than a constant $c_0$.
+\end{definition} 
+
+The idea behind this definition is similar to Amdahl's law~\cite{amdahl1967validity}. In particular, even if the hashing hardware has evolved into
+a level where all the hashes summed up in one execution of the function instance can be viewed as negligible, then the performance boost is
+still bounded by a constant $1/c_0$. Although we currently are not aware how the optimal strategy are like given common graphs, the analysis in 
+section~\ref{sec::sandwich} shows that for random sandwich graph, for the optimal strategy, the ratio of fetching time $T_f$ over hashing time $T_h$
+must satisfy a certain lower bound.
+
+Armed with the definition above, we are ready to prove the time reduction in some proved

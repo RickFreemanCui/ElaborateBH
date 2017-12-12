@@ -1,0 +1,60 @@
+\paragraph{MHF's intuition} Memory hard hashing function has been widely applied as password hashing functions and as proof-of-effort functions. The reason why the
+quality of memory hard\footnote{for concrete definitions, see definition~\ref{def::memoryHard}} is preferable is the asymmetric gap between
+the computing power of commodity server (which the majority of honest users will use), and integrated circuits of different architectures (like ASIC,
+FPGA, and GPU.) More specifically, consider that a malicious user trying to brute force every possible input combination in order to obtain the log-in
+password after obtaining the hashed password files from a compromised authentication server, or one who tries to use custom circuit to compute proof-of-%
+effort functions. In either settings, the inputs are irrelevant from each other (we consider the most naive brute force attack), and when this is
+the case, features like parallelism and pipelining can help custom circuits beats computers of common architecture. The authors of \cite{corrigan2016balloon}
+claims that it takes 100000 times more energy to compute a SHA-256 hash on a
+general-purpose x86 CPU than it does to compute SHA-256 on special-purpose hardware. The advantage lies that when the input are completely independent,
+the pipeline can hardly be disturbed (recall that modern CPUs do a lot of work to prevent this from happening, like when a bench command is encountered.)
+And thus such circuits can achieve as high as one hash per clock cycle.
+
+The intuition behind memory hard functions is that although the computing power of custom circuits have taken absolute advantage, constructing enough memory
+on VLSI is a technical challenge not yet solved. Two main types of memory in widely use nowadays are DRAM and SRAM. % reference needed
+DRAM is relatively cheap and has large volume, but are considerably slow compared to modern CPU, not to mention custom circuits.
+SRAM, on the other hand, is fast % how fast?
+, but every single memory cell in SRAM takes more transistors than that in DRAM, and thus a SRAM circuit takes up more space and energy that DRAM circuit of the
+same volume. Design of custom circuit usually use SRAM on board in order to match the speed of other components, while in commodity servers, DRAM and cache made
+of SRAM are used in combination. And therefore computing any function on custom circuits and on commodity server are limited to two strategies:
+
+\begin{itemize}
+  \item Use custom circuit, which has faster computation speed and limited memory
+  \item Use commodity server, which has slower computation speed and large memory (although slow)
+\end{itemize}
+
+Intuitively, if a function has the property that when working memory is smaller than a particular threshold, then the time to finish the computation
+becomes considerably longer. In particular, given concrete parameter settings, if such increase in time makes computational time on custom circuits
+greater than or equal the time honest users would take, then such memory hard property will render the advantage of custom circuits useless.
+
+\subsection{Theoretical analysis}
+The analysis of memory hard functions usually use a ``graph reduction'' method in order to simply the analysis process. That is, after defining a pebbling
+rule on a DAG (the data dependency graph of the MHF), any valid algorithm computing the function can be converted (with high probability) to pebbling on
+that graph. And by graph labeling\cite{dziembowski2011one}, any legal graph pebbling can be converted to an algorithm computing the function. And thus
+in order to lower bound the time to compute the function, one only needs to lower bound the steps to pebble the underlying DAG. Some notable functions include
+Balloon hashing, scrypt, argon2, catena, and a function proposed by Alwen et.al. from \cite{alwen2015high} that is proved to enjoy memory hard property
+under a parallel setting.
+
+\paragraph{Balloon hashing}
+Balloon hashing\cite{corrigan2016balloon} is a hashing function proposed by Dan Boneh et.al.
+With the application of password hashing algorithm in mind, the algorithm was designed to
+have three important properties:
+
+\begin{itemize}
+  \item \textit{Memory hardness} product of time ($T$) and working space ($S$) is proved to be greater than $n^2/32$
+  \item \textit{Password independent} the memory access pattern is independent of the password being hashed.
+  \item \textit{Performance} the Balloon algorithm is easy to implement and it matches or exceeds the performance of the fastest comparable password-hashing algorithms
+\end{itemize}
+
+The sparking point of the analysis of balloon hashing is that it avoids asymptotic notations whenever possible, and thus under the assumptions the
+exact lower bound of the function can be found.
+
+\paragraph{Work of Alwen et.al.}
+An impressing research line of Alwen et.al. focused on extending the analysis of memory hard function to a parallel setting and device attacks on known sequential
+memory hard functions. In particular, they designed general attack utilising parallelism.
+
+\subsection{Our contribution}
+In this work, we presented a new model for computing the memory hard functions. Under the assumption of this model (which is considered valid under
+current electronic technology), the lower bound of known memory hard functions can be lowered. More specifically, we can lower the $ST$ bound of balloon
+hashing from $r \cdot n^2/32$ to $c \cdot r \cdot n$, and reduce the cumulative complexity $CC(G)$ of the graph constructed from \cite{alwen2015high}
+from $\tilde{\Omega(n^2)}$ to roughly $O(n \cdot \log^3(n))$.
