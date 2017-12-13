@@ -1,0 +1,68 @@
+In this section,we give an another example and according to reduce the cumulative complexity $CC(G)$ of the graph constructed from $\Omega(n^2 \cdot \log^3(n))$ to roughly $O(n \cdot \log^3(n))$. We use upper bound in the amortized setting from ~\cite{alwen2015high}as an example.We take our ideas from the proof in~\cite{alwen2015high}, especially, we are interested in the $heavy group$ property.
+
+\subsection{Heavy Group}
+\begin{definition}\label{def::heavygroup}
+  For $a\in \mathbb N_{<i-\alpha}$,we call $\Gamma_a :=\{(\phi,v)\in p:\lfloor \frac{v}{2^{\alpha}} \rfloor = a \}$ is a group,and a heavy group is one which has $|\Gamma_a|\ge(1-3\omega)2^{\alpha}$
+\end{definition}
+
+ After giving the definition of heavy group ,we are interested in the number of heavy group,so according to the article ~\cite{alwen2015high},we can get the lower bound of the heavy group's numbers:
+
+\begin{lemma}\label{lemma::heavygroup}
+  There are at least $2^{i-\alpha}/3$ heavy groups
+\end{lemma}
+
+\begin{proof}
+  This lemma we use reduction to absurdity to proof.So a heavy group has size at most $2^{\alpha}$ and the rest have size less than $(1-3\cdot\omega)\cdot2^{\alpha}$.Thus $\Phi$ has length $z$ which is at most:
+
+  \begin{equation}
+  \begin{aligned}
+    z&\le \frac{2^{i-\alpha}}{3}\cdot2^{\alpha}+(2^{i-\alpha}-\frac{2^{i-\alpha}}{3})\cdot(1-3\omega)\cdot2^{\alpha}\\
+    &=\frac{2^i}{3}+\frac{2}{3}\cdot2^i(1-2\omega)-\frac{2}{3}\cdot2^i\cdot{\omega}\\
+    &=\frac{2}{3}\cdot2^i(1-2\omega)+\frac{2}{3}\cdot2^i\cdot{\omega}\\
+    &=z
+  \end{aligned}
+  \end{equation}
+  it means assumption is wrong,the original proposition is right!
+\end{proof}
+
+Next we need to make the connection from cumulative complexity and heavy group,it means we want to express $cc(G_{\omega,\phi,i})$,so we can write : 
+\begin{lemma}\label{lemma::heavygroupandcc}
+  Fix any $\phi\in \mathbb N$,$0<\omega\le \frac{4^{-\phi}}{6}$\\
+  -Let $C_{\omega,\phi}$ be a constant be a constant such that some set $\{D_{4^{\phi-j} \omega,2^{i}}:j\in \mathbb N_{\phi}\}$of depth-robust graphs exists $\forall i \ge C_{\omega,\phi}$.\\
+  -Let $C_{\phi}$be a constant such that $\forall i \ge C_{\phi}$we have $\frac{log(i)}{i} \ge \frac{2^{-\phi}}{3}$.\\
+  If both constants exist then $\forall i \ge max\{C_{\omega,\phi},C_{\phi},11\}$ the DAG $G_{\omega,\phi,i}$ has a single source and sink, size $n_i$ and:\\
+  $1.n_i=(\phi+1)(2^i).$\\
+  $2.indeg(G_{\omega,\phi,i})\le3i^3+1.$\\
+  $3.cc(G_{\omega,\phi,i})\ge \frac{{\omega}^2}{144}\cdot~i^3\cdot~{(2^i)}^{2-2^{-\phi}}.$
+\end{lemma}
+
+The proof of lemma~\ref{lemma::heavygroupandcc} is to use index-heavy group to solve and the detailed proof course is in the article~\cite{alwen2015high}. So according to lemma~\ref{lemma::heavygroupandcc}'s conclusion 1,we can write:
+\begin{equation}
+  O(i)=O(\log n)-O(\log(\phi+1))
+\end{equation}
+We put it in the lemma~\ref{lemma::heavygroupandcc}'s conclusion 3,we can write:
+\begin{equation}
+  cc(G_{\omega,\phi,i})=\frac{{\omega}^2}{144}\cdot~O((\log n-\log(\phi+1))^3\cdot~{(\frac{n}{\phi+1})^{2-2^{-\phi}}})\approx n^2\cdot\log^3(n)
+\end{equation}
+
+It is because that fix any $\phi\in \mathbb N$,so we can choose $\phi$ is too large to make $2-2^{-\phi}\to 2$,so we can get the max lower boundary is $O(n^2\cdot\log^3(n))$.Next ,we will give our analysis about the index:cc,and we will proof cc's complexity in our model is better than its,so it can illustrate our plan is better.And here,we fixed i and $\phi$ to define the following three constants:\\
+
+$\alpha :=\left\lfloor(1-2^{-\phi})\cdot i\right\rfloor$~~
+$\beta :=\left\lfloor(1-2^{-\phi})\cdot i+3\log i\right\rfloor$~~
+$R:=2^{\beta-\alpha}$\\
+
+Based on these index ,we can write:
+\begin{equation}
+\begin{aligned}
+  cc(G_{\omega,\phi,i})&=min\{p'-cost(P):P \in \pi \}\\
+  &=min\{\sum\limits_{i=0}^t|P_i|+(c-1)\cdot\sum\limits_{i=0}^s|Q_i|:P \in \pi \}\\
+  &\ge\frac{2^{i-\alpha}}{3}\cdot(1-3\omega)\cdot2^{\alpha}\cdot c\cdot R \\
+  &\approx \frac{1-3\omega}{3}\cdot c\cdot R\cdot2^i\\
+  &\approx \frac{1-3\omega}{3}\cdot c \cdot2^{\beta-\alpha}\cdot n \\
+  &\approx \frac{1-3\omega}{3}\cdot c\cdot2^{3\log i}\cdot n \\
+  &\approx \frac{1-3\omega}{3}\cdot c\cdot i^3\cdot n \\
+  &\approx O(n\cdot(\log^3(n))
+\end{aligned}
+\end{equation}
+
+So,according to reduce the cumulative complexity $CC(G)$ of the graph,we construct from $\Omega(n^2 \cdot \log^3(n))$ to roughly $O(n \cdot \log^3(n))$.

@@ -79,12 +79,39 @@ custom circuit will make computational power overly centralized (a problem sever
   Fix a function $f$, then it is considered to be memory-hard in a computational machine $\mathbb{M}$ in definition~\ref{def::dramComputationalModel}
   if given the optimal algorithm that can correctly output the result, the ratio of the time taken to fetch blocks from DRAM (denote as $T_f$) over
   the time taken to compute underlying hash function (denote as $T_h$) is greater than a constant $c_0$.
-\end{definition} 
+\end{definition}
 
 The idea behind this definition is similar to Amdahl's law~\cite{amdahl1967validity}. In particular, even if the hashing hardware has evolved into
 a level where all the hashes summed up in one execution of the function instance can be viewed as negligible, then the performance boost is
-still bounded by a constant $1/c_0$. Although we currently are not aware how the optimal strategy are like given common graphs, the analysis in 
+still bounded by a constant $1/c_0$. Although we currently are not aware how the optimal strategy are like given common graphs, the analysis in
 section~\ref{sec::sandwich} shows that for random sandwich graph, for the optimal strategy, the ratio of fetching time $T_f$ over hashing time $T_h$
 must satisfy a certain lower bound.
+
+\subsection{Cumulative Pebbling Complexity in DRAM model}
+In this section,we define New Cumulative Pebbling Complexity in DRAM model.In the Alwen's article,it introduces a new more fine-grained cost measure called the cumulative complexity (CC) of a graph. Put simply the CC of a given execution in the (parallel) pebbling game for graph G is the sum of the number of pebbles lying on G when summed across all steps in the execution.We change a lot in order to use in our DRAM model,next we will give the definition about them:
+
+\begin{definition}\label{def::cumulativecomplexity}
+Let $G$ be a $DAG$, P = ($P_0$,...,$P_t$) be an arbitrary pebbling of $G$ and $\Pi$ be the set of all complete pebblings of $G$. Then the (cumulative) cost of $P$ and then cumulative complexity ($CC$) of $G$ are defined respectively to be:\\
+  \begin{equation}
+    p-cost(P):= \sum\limits_{i=0}^t|P_i|
+  \end{equation}
+
+  \begin{equation}
+    CC(G):= min\{p-cost(P):P \in \pi \}
+  \end{equation}
+\end{definition}
+
+we suppose that the times which we fetch the block are $c$ times higher than do once hash.At the same time, to make our next analysis become easier and we also suppose that we don't make other work when we fetch the block in the DRAM .
+\begin{definition}\label{def::cumulativecomplexity}
+based on our this suppose ,we define the status when we fetch the block are $Q_i(i=1,\dots,s)$.So in DRAM model we have our definition of New Cumulative Pebbling Complexity in DRAM model:
+  \begin{equation}
+    p'-cost(P):= \sum\limits_{i=0}^t|P_i|+(c-1)\sum\limits_{i=0}^s|Q_i|
+  \end{equation}
+
+  \begin{equation}
+    CC'(G):= min\{p'-cost(P):P \in \pi \}
+  \end{equation}
+\end{definition}
+
 
 Armed with the definition above, we are ready to prove the time reduction in some proved
