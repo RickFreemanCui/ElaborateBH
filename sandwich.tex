@@ -118,19 +118,18 @@ finding a lower bound on the $c_0$ defined in definition~\ref{def::memoryHard}. 
 $m$ adjacent blocks once at a time, then the problem would be trivial, as lemma~\ref{lemma::rbound} and simulation result in table~\ref{table::recompDramRatio}
 shows that as $r$ gets greater, DRAM fetching will certainly be the optimal choice. Also, in shallower layers re-computation only takes up a
 small portion of total time (they cannot exceed $c \cdot \delta \cdot m$), then we have $c_0 > 1 - r_0/r$, where $r_0$ is the number of deepest layer in
-the group of shallow layers. Now the tricky part is that how to remove the constraint, so that forcing the algorithm to choose between these
-two strategies would be logical.
+the group of shallow layers. Now the tricky part is that how to remove the constraint.
 
-Consider an algorithm not using DRAM computing on a random sandwich graph, then there always exists a window of size $m$ not computed ahead of
-the latest computed node (but for the last $m$ nodes). And the computation can be considered to be computing the first node in the window.
-As when doing this, no nodes exist in the window, and the condition of such actions are somewhat identical. 
+% Consider an algorithm not using DRAM computing on a random sandwich graph, then there always exists a window of size $m$ not computed ahead of
+% the latest computed node (but for the last $m$ nodes). And the computation can be considered to be computing the first node in the window.
+% As when doing this, no nodes exist in the window, and the condition of such actions are somewhat identical.
 % I feel very uncertain about this reasoning
 %
-This give rise to the idea that we can consider the time required to compute each blocks in the subset $V^\prime$ of size $m$ defined in 
-lemma~\ref{lemma::everyAvoid} to be identical. As the fetching strategy is scalable in nature, we can shrink $m$ into 1 in this way.
-And thus any entity computing on this graph must choose between two strategies. And our conclusion that $c_0 > 1 - r_0/r$ suffices.
+% This give rise to the idea that we can consider the time required to compute each blocks in the subset $V^\prime$ of size $m$ defined in
+% lemma~\ref{lemma::everyAvoid} to be identical. As the fetching strategy is scalable in nature, we can shrink $m$ into 1 in this way.
+% And thus any entity computing on this graph must choose between two strategies. And our conclusion that $c_0 > 1 - r_0/r$ suffices.
 
-Conversely, if we can bound that for any optimal strategy computing the $V^\prime$ group of size $m$, there must exist a constant portion of blocks that
+Naturally, if we can bound that for any optimal strategy computing the $V^\prime$ group of size $m$, there must exist a constant portion of blocks that
 are fetched from DRAM, then the memory hard property from definition~\ref{def::memoryHard} is satisfied.
 
 \begin{theorem}\label{theorem::memoryHardLowerBound}
@@ -171,7 +170,7 @@ time as the depth $r$ goes further.
   case where $x$ resides in the first $m - 1$ nodes of layer $r - 1$. Other than the corner case, fix the position of $x$,
   and the probability is $\binom{n_0 - 1}{n - m}/\binom{n_0 - 1}{n - 1}$. Taking all the probability in the corner
   case as zero would get the final result.
-  
+
   As shown, with high probability the previous $m$ nodes of $x$ is unpebbled. And thus we can use lemma~\ref{lemma::rbound}
   to deduce that to pebble $x$, at least $T_{r - 1}$ moves are required, which proves the lemma.
 \end{proof}
@@ -193,6 +192,6 @@ these $m$ nodes, and thus the memory hardness of the function.
   \begin{equation}
     T = \frac{n_0}{\delta} + (m - \frac{n_0}{\delta}) \cdot (\delta + 1) c
   \end{equation}
-  where $(m - \frac{n_0}{\delta}) \cdot \delta c$ rounds are used to fetch blocks from DRAM. After $r$ gets enough deep,
+  where $(m - \frac{n_0}{\delta}) \cdot \delta c$ rounds are used to fetch blocks from DRAM. After $r$ gets deep enough,
   the majority of the $m$ adjacent nodes will satisfy the property. And this completes the proof.
 \end{proof}
