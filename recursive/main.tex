@@ -1,0 +1,83 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\author{Cui Hongrui, Sha Jinrui}
+\date{\today}
+\title{An Improved Analysis On Balloon Hashing}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+
+Hashing functions serve as the backbone in many modern cryptographic applications, such as crypto-currency and
+authentication of legitimate users on a shared host. Due to the invertible nature of cryptographic hashing function,
+the only way to get the message % (in authentication, the password; and in crypto-currency, the nonce)
+from its fingerprint is to mount a dictionary attack. Unfortunately, as the asymmetry between the computing ability
+of general purpose machine and application-specific hardware gets bigger\footnote{In \cite{corrigan2016balloon}, the author
+argues that ASIC has a 100,000 times advantage against x86 servers on energy cost in executing SHA-256 hashing function.}
+, applications that use traditional hashing
+functions may become either inefficient or insecure. In particular, an algorithm infeasible to be brute attacked may be
+possible to be compromised on a piece of application-specific hardware. On the other hand, if the algorithm is hard
+enough against application-specific hardware, it would be too inefficient for legitimate users who would mostly use
+general purpose machines.
+
+\paragraph{Memory Hard functions come to rescue}
+Memory hard hashing functions overcome this disadvantage by using that fact that memory units on hardware that can
+match the speed of other components are costly in terms of space and energy, and on a particular chip one can not
+place too many memory units. An ideal memory hard hashing function can be executed efficiently with more than $|S|$
+bits of space and if available space gets smaller than that amount, the performance drops dramatically. And as
+there are always sufficient of memory (though slow) on general purpose machine, legitimate uses will not be affected.
+
+\paragraph{Our Idea}
+Other works in this field mainly focus on analysing the time-space tradeoff of memory hard functions. This is a trivial
+idea as if this is bounded, any adversary with limited memory has bounded execution time. However, our concern is that
+due to fact that slow memory of large volume like synchronous DRAM can be used by application specific hardware designers
+as in general purpose hardware. And thus we cannot bound the adversary to using only those fast memory. Our idea is to
+prove that in some algorithms (Balloon hashing in particular), the computation needed to generate a block grows with its
+`depth'. But the time needed to fetch a block of data from memory is fixed. This means that if the algorithm is configured
+well, the main proportion of the execution time of the function will be spent on fetching blocks from memory. And because
+the speed of DRAM is the same for general purpose computers and application-specific hardware, the goal to bring adversary
+and honest users to the same level can be achieved.
+
+% add some elaboration
+\subsection{Related Works}
+There are a number of works focusing on designing and analysing memory hard hashing functions. 
+% Brief Summary
+
+Although algorithms like balloon hashing has been proved to be secure under the sequential computation model, we find
+adapting this analysis in order to fit in our model is rather difficult. And thus we calculated a different bound on
+the average case from where the expected result can be easily drawn.
+
+\subsection{Our contribution}
+In this work, we introduced a new model to capture the DRAM ability of adversary and made a new analysis of
+balloon hashing that incorporate this model. In section~\ref{sec::balloonHashing} we briefly introduced the
+balloon hashing algorithm defined in section~3 in \cite{corrigan2016balloon}.
+In section~\ref{sec::model} we defined the model and some variables
+that will be used throughout the analysis. In section~\ref{sec::analysis} we did the analysis and showed that even
+if the ability of adversary is enlarged, the main portion of an optimal (takes the least time) execution of
+a balloon hashing instance will still spend most of its time on fetching blocks from memory.
+
+\section{Balloon Hashing Algorithm}\label{sec::balloonHashing}
+The pseudo-code of balloon hashing can be found in~\cite{corrigan2016balloon} and the mapping from the function to
+its underlying data dependency graph and vise versa can be found in~\cite{dwork2005pebbling}.
+% hhh what to do here?
+
+\section{Model And Definition}\label{sec::model}
+In previous works, memory hard functions are mainly studied via a ``pebbling reduction'', i.e. a mapping from
+arbitrary effective computational strategy of a given function to a corresponding legal pebbling strategy on its
+underlying data-dependency graph, and vise versa. We will continue this scheme, but as we have introduced slow
+memory, we have to add some new rules to the pebbling games.
+
+\subsection{}
+\section{Recursive Analysis for the Execution Time}\label{sec::analysis}
+
+\section{Now What?}
+
+\bibliography{refRecursiveAnalysis}
+\bibliographystyle{plain}
+\end{document}
