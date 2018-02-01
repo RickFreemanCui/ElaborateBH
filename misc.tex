@@ -1,0 +1,16 @@
+% @main.tex section: introduction paragraph: our idea
+Other works in this field mainly focus on analysing the time-space tradeoff of memory hard functions. This is a trivial
+idea as if this is bounded, any adversary with limited memory has bounded execution time. However, our concern is that
+due to fact that slow memory of large volume like synchronous DRAM can be used by application specific hardware designers
+as in general purpose hardware. And thus we cannot bound the adversary to using only those fast memory. Our idea is to
+prove that in some algorithms (Balloon hashing in particular), the computation needed to generate a block grows with its
+`depth'. But the time needed to fetch a block of data from memory is fixed. This means that if the algorithm is configured
+well, the main proportion of the execution time of the function will be spent on fetching blocks from memory. And because
+the speed of DRAM is the same for general purpose computers and application-specific hardware, the goal to bring adversary
+and honest users to the same level can be achieved.
+
+% @main.tex section: model and definition
+In previous works, memory hard functions are mainly studied via a ``pebbling reduction'', i.e. a mapping from
+arbitrary effective computational strategy of a given function to a corresponding legal pebbling strategy on its
+underlying data-dependency graph, and vise versa. We will continue this scheme, but as we have introduced slow
+memory, we have to add some new rules to the pebbling games.

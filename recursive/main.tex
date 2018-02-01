@@ -3,8 +3,10 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amsthm}
+\usepackage{algorithm2e}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
 
 \author{Cui Hongrui, Sha Jinrui}
 \date{\today}
@@ -17,11 +19,13 @@
 Hashing functions serve as the backbone in many modern cryptographic applications, such as crypto-currency and
 authentication of legitimate users on a shared host. Due to the invertible nature of cryptographic hashing function,
 the only way to get the message % (in authentication, the password; and in crypto-currency, the nonce)
-from its fingerprint is to mount a dictionary attack. Unfortunately, as the asymmetry between the computing ability
+from its fingerprint is to mount a dictionary attack. % explain rainbow table here, though I don't know what it is
+Unfortunately, as the asymmetry between the computing ability
 of general purpose machine and application-specific hardware gets bigger\footnote{In \cite{corrigan2016balloon}, the author
 argues that ASIC has a 100,000 times advantage against x86 servers on energy cost in executing SHA-256 hashing function.}
 , applications that use traditional hashing
-functions may become either inefficient or insecure. In particular, an algorithm infeasible to be brute attacked may be
+functions may become either inefficient or insecure. In particular, an algorithm infeasible to be brute attacked
+on a general-purpose computer may be
 possible to be compromised on a piece of application-specific hardware. On the other hand, if the algorithm is hard
 enough against application-specific hardware, it would be too inefficient for legitimate users who would mostly use
 general purpose machines.
@@ -31,22 +35,26 @@ Memory hard hashing functions overcome this disadvantage by using that fact that
 match the speed of other components are costly in terms of space and energy, and on a particular chip one can not
 place too many memory units. An ideal memory hard hashing function can be executed efficiently with more than $|S|$
 bits of space and if available space gets smaller than that amount, the performance drops dramatically. And as
-there are always sufficient of memory (though slow) on general purpose machine, legitimate uses will not be affected.
+there are always sufficient memory (though slow) on general purpose machine, legitimate uses will not be affected.
 
 \paragraph{Our Idea}
-Other works in this field mainly focus on analysing the time-space tradeoff of memory hard functions. This is a trivial
-idea as if this is bounded, any adversary with limited memory has bounded execution time. However, our concern is that
-due to fact that slow memory of large volume like synchronous DRAM can be used by application specific hardware designers
-as in general purpose hardware. And thus we cannot bound the adversary to using only those fast memory. Our idea is to
-prove that in some algorithms (Balloon hashing in particular), the computation needed to generate a block grows with its
-`depth'. But the time needed to fetch a block of data from memory is fixed. This means that if the algorithm is configured
-well, the main proportion of the execution time of the function will be spent on fetching blocks from memory. And because
-the speed of DRAM is the same for general purpose computers and application-specific hardware, the goal to bring adversary
-and honest users to the same level can be achieved.
+Many suggestions have been purposed, especially in the past password hashing competition. % TODO: citation
+We discuss some of the results in section~\ref{subsec::relatedWorks}. Although some of these works have strictly proved
+the security (often in the form of time-space tradeoff) of their algorithms under sequential or parallel models, none of
+them have mentioned the possibility that
+an adversary may try to integrate the slow memories in their attacking scheme. In particular, these algorithms tend to
+achieve a state where the lack of memory will most certainly cause re-computation of previously calculated values, and
+such re-computation will take very long time. But consider if an adversary has cached all of the previous results needed
+in slow memory, then if re-computation takes longer time than a fetch cycle, it can use constant fetch time instead of
+re-compute the previous results.
 
-% add some elaboration
-\subsection{Related Works}
-There are a number of works focusing on designing and analysing memory hard hashing functions. 
+Our idea is to formalize this intuition and make a security (memory-hardness) definition under the new model. Then by
+making a simplified (but sufficient enough) analysis on balloon hashing, we can use the new model to test if balloon
+hashing could fit in this definition.
+
+
+\subsection{Related Works}\label{subsec::relatedWorks}
+There are a number of works focusing on designing and analysing memory hard hashing functions.
 % Brief Summary
 
 Although algorithms like balloon hashing has been proved to be secure under the sequential computation model, we find
@@ -57,24 +65,156 @@ the average case from where the expected result can be easily drawn.
 In this work, we introduced a new model to capture the DRAM ability of adversary and made a new analysis of
 balloon hashing that incorporate this model. In section~\ref{sec::balloonHashing} we briefly introduced the
 balloon hashing algorithm defined in section~3 in \cite{corrigan2016balloon}.
-In section~\ref{sec::model} we defined the model and some variables
+In section~\ref{sec::model} we defined the model and some definitions
 that will be used throughout the analysis. In section~\ref{sec::analysis} we did the analysis and showed that even
 if the ability of adversary is enlarged, the main portion of an optimal (takes the least time) execution of
 a balloon hashing instance will still spend most of its time on fetching blocks from memory.
 
 \section{Balloon Hashing Algorithm}\label{sec::balloonHashing}
-The pseudo-code of balloon hashing can be found in~\cite{corrigan2016balloon} and the mapping from the function to
-its underlying data dependency graph and vise versa can be found in~\cite{dwork2005pebbling}.
-% hhh what to do here?
+
+The pseudo-code of balloon hashing can be found in~\cite{corrigan2016balloon}.
+We will present it here for sake of clarity.
+
+
+
+% TODO: Add the algorithm here
+
+
+Now we are ready to present our model and security definition in the next section.
 
 \section{Model And Definition}\label{sec::model}
-In previous works, memory hard functions are mainly studied via a ``pebbling reduction'', i.e. a mapping from
-arbitrary effective computational strategy of a given function to a corresponding legal pebbling strategy on its
-underlying data-dependency graph, and vise versa. We will continue this scheme, but as we have introduced slow
-memory, we have to add some new rules to the pebbling games.
+There are primarily two models in the analysis of memory-hard functions: the sequential model and
+the parallel model. In the sequential model only one request to the random oracle is allowed whereas
+in the parallel setting, multiple request can be handled at the same time. Also there are some
+difference in how to quantify the time-space tradeoff. The simpler one is to measure in terms of
+$ST$ where $S$ is the space used (roughly) and $T$ is the time required. This is used in~\cite{corrigan2016balloon}
+and a number of other work. Alwen et al. purposed another metric \textit{cumulative complexity} to
+capture the averaged result when multiple instances of the algorithm are running in parallel.
 
-\subsection{}
+In this work we will stick to the sequential model. We present our model in the form of a set of pebbling rules.
+The rules are defined as follows.
+
+\subsection{Pebbling Rules}\label{subsec::pebblingRules}
+
+In this section we define rules of sequential pebbling game in our elaborated DRAM model.
+
+\begin{definition}\label{def::dramPebblingRules}
+  Let $G = (V, E)$ be a directed acyclic graph, a legal pebbling on $G$ given $S$ pebbles and target $T\prime \subset V$
+  is a sequence of moves, measured in rounds.
+  Each move must be legal according to the following rules:
+
+  \begin{enumerate}
+    \item Put a red pebble on source node
+    \item Put a red pebble on a node only if all of its parents have red node or blue node in the previous round
+    \item Put a blue pebble on any nodes previously pebbled
+    \item Remove a pebble from any node
+  \end{enumerate}
+
+  Additional constraints are at any time, there can be only at most $S$ red pebbles, and blue pebbles are removed automatically one move
+  after placement. Move~1, 2, and 4 takes one round and move~3 takes $c$ rounds where $c$ is a constant equal to the ratio of the time of
+  fetching a block from DRAM over the time needed to compute a block.
+  A legal game is valid only if it begins with no node on the graph and end with all nodes in $T\prime$ has been pebbled at least once.
+\end{definition}
+
+Note that in our definition of pebbling games, only one rule is added compared to the pebbling rules in other work,
+% TODO: citation needed here, after adding related works.
+
+that is the blue pebble placement rule. This is an simplified abstraction of DRAM fetching in the real world. By our assumption, a block
+can only be used immediately after being fetched, then it is lost. Of course in the real world, certain cache method is most likely applied
+to save some time when, say, one block is repeatedly fetched. But as we will later show, this somewhat naive abstraction will save considerably
+amount of time given real parameter setting.
+
+\subsection{Security Definition}\label{subsec::secDef}
+
+In this section we give the security definition that will use in the proof section.
+
+\begin{definition}\label{def::secDef}
+  We consider an algorithm memory hard if the fastest algorithm will take non-negligible ratio
+  of total time to fetch block from memory. If we denote $r$ to be this ratio, we have
+  $\exists\delta>0 \text{ s.t. }\lim_{n\rightarrow \inf} r > \delta$.
+\end{definition}
+
 \section{Recursive Analysis for the Execution Time}\label{sec::analysis}
+
+Previous work in this field typically use ``pebbling reduction'' to simplify the analysis. In essence, that means to
+analyse calculating strategy of the algorithm (function) % TODO: unify the notation <algorithm or function>
+, one only need to analyse the pebbling strategy of the underlying data-dependency graph.
+To do so, one need to prove that if a graph is hard to pebble, then its corresponding function is hard to compute, and
+vise versa. Luckily, it has been proved by Dwork, Naor, and Wee in~\cite{dwork2005pebbling}.
+% As we are using a different standard other than time-space tradeoff, we slightly modify the proof to fit in our proof.
+As we have added a new rule and used a new security definition, we will modify the proof a little bit.
+
+\subsection{Proof of Pebbling Reduction}
+% TODO: after looking at Dwork, Naor, and Wee's work, see if this proof is necessary and possible.
+
+After proving that, we can move to the main section of the proof, the recursive reasoning.
+\subsection{Recursive Reasoning}
+Our goal here is to get a function $f$ mapping from the layer (or depth) of the current target block to the red pebble placement
+moves needed to achieve this goal. We do this without allowing the adversary to use the blue pebble rules in order to prove that
+as the calculation goes deeper, slow memories will most certainly be used in the optimal strategy. % TODO: W.T.F. is that?
+If the graph has $n$ nodes on each layer, and the number of red pebbles $S$ is greater than $n$,
+then such function would be constant ($f = 1$).
+
+The more practical case is when $S < n$. In this case, we enlarge the ability
+of the adversary by allowing them to have $S$ red pebbles on each layer of the graph, but the adversary must not use them in a
+single layer because that would violate reality.
+If we consider the placement of red pebbles to be independent of the the predecessors
+($\delta$ in total) needed to compute the next block, then the number of nodes that have red pebbles on them satisfies that:
+
+\begin{align}
+  X &\sim H(\delta, n, S)\label{equ::distribution} \\
+  Pr[X = p] &= \frac{C_{S}^{p} \cdot C_{n-S}^{\delta - p}}{C_{n}^{S}}\label{equ::distribution2} \\
+  E(X) &= \frac{\delta \cdot S}{n}\label{equ::expectation}
+\end{align}
+
+And this means that in the average case, only $E(X)$ of them are already available in memory, whereas the rest need to
+be re-computed. As we have allowed the adversary to own another $S$ red pebbles in the previous layer, the only difference
+is the previous layer is one layer shallower than the current target. If we denote $T_r$ as the amount of red pebble placement moves
+needed to compute the current target, then we have:
+
+\begin{align}
+  T_{r} &= 1 + \frac{\delta \cdot S}{n} + (\delta - \frac{\delta \cdot S}{n}) \cdot T_{r - 1}\label{equ::recursiveExpr}
+\end{align}
+
+Given the base case that on average, $T_0 = n/2$. % TODO: this is also inaccurate
+Therefore we have
+
+\newcommand{\myex}{\frac{\delta \cdot S}{n}}
+\newcommand{\mya}{\frac{1 + \myex}{\delta - \myex - 1}}
+
+\begin{align}
+  T_{r} &= -\mya + (\delta - \frac{\delta \cdot S}{n})^r \cdot (\frac{n}{2} + \mya)\label{equ::recursiveResult}
+\end{align}
+
+\paragraph{Analyse the result}
+As result shown in equation~\ref{equ::recursiveResult}, if we limit the pebbling strategy to using only the
+red pebbles (not rely on additional slow memory), the moves needed to compute an un-visited block grows
+exponentially with the depth of the block. Out of $T_{r}$, $\myex \cdot T_{r - 1}$ of them are spent on the
+re-computation. This will certainly not be the optimal choice as $c$ is a constant, and a trivial means to
+use blue pebble moves in every nodes unpebbled would take $\myex \cdot c$ moves. By the simple inequality:
+
+\begin{align}
+  \myex \cdot T_{r - 1} > \myex \cdot c\label{equ::rBound}
+\end{align}
+
+we can easily get when using the trivial blue pebble strategy would become more advantageous.
+
+\subsection{Worst Case And Average Case}
+
+% TODO: I have no idea how to do this
+
+\subsection{Balloon Hashing is Secure} % TODO: this name is not so fitting
+In this section we prove that Balloon hashing does satisfy the security (memory hard) definition defined
+in definition~\ref{def::secDef}.
+
+\begin{lemma}
+  Set Parameter $c$, the Balloon Hashing algorithm defined in section~\ref{sec::balloonHashing} is secure (memory hard)
+  according to definition~\ref{def::secDef}.
+\end{lemma}
+
+\begin{proof}
+  What to do here???
+\end{proof}
 
 \section{Now What?}
 
