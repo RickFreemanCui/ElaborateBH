@@ -50,7 +50,7 @@ re-compute the previous results.
 
 Our idea is to formalize this intuition and make a security (memory-hardness) definition under the new model. Then by
 making a simplified (but sufficient enough) analysis on balloon hashing, we can use the new model to test if balloon
-hashing could fit in this definition.
+hashing could fit in this definition. % TODO: really? Is this proof even tight and sound?
 
 
 \subsection{Related Works}\label{subsec::relatedWorks}
@@ -83,6 +83,7 @@ We will present it here for sake of clarity.
 Now we are ready to present our model and security definition in the next section.
 
 \section{Model And Definition}\label{sec::model}
+% TODO: Add definitions of n and r in the graph here
 There are primarily two models in the analysis of memory-hard functions: the sequential model and
 the parallel model. In the sequential model only one request to the random oracle is allowed whereas
 in the parallel setting, multiple request can be handled at the same time. Also there are some
@@ -208,12 +209,24 @@ In this section we prove that Balloon hashing does satisfy the security (memory 
 in definition~\ref{def::secDef}.
 
 \begin{lemma}
-  Set Parameter $c$, the Balloon Hashing algorithm defined in section~\ref{sec::balloonHashing} is secure (memory hard)
+  Set Parameter $c$, and let $S$, $n$, and $r$ be the same as those defined in section~\ref{sec::model}
+  the Balloon Hashing algorithm defined in section~\ref{sec::balloonHashing} is secure (memory hard)
   according to definition~\ref{def::secDef}.
 \end{lemma}
 
 \begin{proof}
-  What to do here???
+  Denote $\bar{r}$ as the ratio of the number blue pebbling moves over the number of total moves. Consider if the
+  lemma does not hold, which means if we fix the number of nodes on each layer (fix n), and let $r$ grows, we can pick
+  an arbitrary $\delta_{0} >0$ and have that for some $r$ big enough, we have $\bar{r} < \delta_{0}$. This means that
+  there exist a consecutive sequence of red pebbling move in the optimal (fastest given the resource) pebbling strategy.
+  And the length is at least $L_{r} / \delta_{0}$, where $L_{r}$ is the total moves of the optimal strategy of the
+  graph with $r$ layers.
+  But by the result shown in equation~\ref{equ::recursiveResult}, even if we allow the adversary to have $S$ pebbles on
+  every layer on the graph, the time needed to pebble a node grows exponentially with the depth. As this sequence is
+  long enough, we can find at least one node in the sequence whose depth is deep enough that the number of moves needed
+  to pebble it is longer than $c \cdot \delta + 1$, a constant number of equivalent red pebble moves required by using
+  $\delta$ blue pebbling moves and one red pebbling move. And thus a pebbling strategy using negligible blue pebbling
+  moves will certainly not be the optimal strategy. And this completes the proof.
 \end{proof}
 
 \section{Now What?}
